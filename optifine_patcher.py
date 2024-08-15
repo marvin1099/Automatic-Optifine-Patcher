@@ -74,7 +74,7 @@ def fetch_minecraft_client(version):
 
     version_info = next((v for v in manifest['versions'] if v['id'] == version), None)
     if not version_info:
-        raise ValueError(f"Minecraft version {version} not found in manifest.")
+        return None
 
     version_data = fetch_html(version_info['url'],True)
 
@@ -157,6 +157,11 @@ def download_version(mc_version, pre, java):
 
     print(f"Fetching Minecraft client jar for {mc_version}...")
     client_url = fetch_minecraft_client(mc_version)
+    if client_url == None:
+        client_url = fetch_minecraft_client(mc_version.removesuffix(".0"))
+        if client_url == None:
+            print(f"Found no minecraft client for version {mc_version}")
+            exit()
     mc_jar = f"minecraft-{mc_version}-client.jar"
     path_mc_jar = os.path.join(mc_version,mc_jar)
     download_file(client_url, path_mc_jar)

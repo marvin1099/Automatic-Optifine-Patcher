@@ -29,7 +29,7 @@ For that i highly recomend using your package manager
 As it will setup java to be accessible globaly
 If you install java manually like from [here](https://www.openlogic.com/openjdk-downloads)  
 Then you will have to add it to your path enviroment var manually
-To do that check out [add java to enviroment variable under windows](https://confluence.atlassian.com/doc/setting-the-java_home-variable-in-windows-8895.html)
+To do that check out [add java to enviroment variable under windows](https://confluence.atlassian.com/doc/setting-the-java_home-variable-in-windows-8895.html)  
 If you on linux you problay used the package manager anyway
 
 ## Download

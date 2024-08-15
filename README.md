@@ -18,7 +18,7 @@ Or use the cmd / terminal and type somthing like:
 ```
 winget search python3
 ```
-openjdk11 should be replaced with a winget result and so run:
+python3 should be replaced with a winget result and so run:
 ```
 winget install python3
 ```

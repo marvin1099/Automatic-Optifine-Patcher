@@ -1,7 +1,9 @@
 # Automatic-Optifine-Patcher
 
 ## Info
-Download and patch any optifine version from optifine.net fully automatic,  
+Patches optifine to work as jar mod file, 
+it can then be used with something like PrismLauncher,
+it also works for any optifine version from optifine.net fully automatic,  
 with the official minecraft client downloaded from minecraft.net,  
 so you can add it to your forge / fabric mod folder right away.
 

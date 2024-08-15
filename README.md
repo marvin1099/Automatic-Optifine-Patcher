@@ -6,7 +6,7 @@ with the official minecraft client downloaded from minecraft.net,
 so you can add it to your forge / fabric mod folder right away.
 
 ## Important
-Keep in mind if you are on minecraft version 1.16.5 or above i strongly recomend using sodium,
+Keep in mind if you are on minecraft version 1.16.5 or above i strongly recomend using sodium,  
 as it gives way better performace and is more compatible with other mods and newer versions.
 
 ## Requirements

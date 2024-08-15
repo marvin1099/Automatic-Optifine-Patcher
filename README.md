@@ -40,7 +40,7 @@ and place the python file in a empty folder.
 ## Use It
 Finaly open the cmd / terminal and type:
 ```
-cd PATH/TO/PYTHON/FILE
+cd "PATH/TO/PYTHON/FILE"
 ./optifine-patcher.py -l 1.9
 ```
 The `PATH/TO/PYTHON/FILE` will need to be replaced,  

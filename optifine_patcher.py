@@ -81,9 +81,9 @@ def fetch_minecraft_client(version):
     client_url = version_data['downloads']['client']['url']
     return client_url
 
-def patch_optifine(optifine_jar, mc_jar, output_jar):
+def patch_optifine(java,optifine_jar, mc_jar, output_jar):
     patch_command = [
-        "java", "-cp", optifine_jar, "optifine.Patcher", mc_jar, optifine_jar, output_jar
+        java, "-cp", optifine_jar, "optifine.Patcher", mc_jar, optifine_jar, output_jar
     ]
     subprocess.run(patch_command, check=True)
 
@@ -112,7 +112,7 @@ def extract_download_link(html):
         print("Download link not found.")
         return None
 
-def download_version(mc_version, pre):
+def download_version(mc_version, pre, java):
     versions, pre_versions = fetch_optifine_versions(mc_version)
     #versions, pre_versions = ["https://optifine.net/adloadx?f=OptiFine_1.8.9_HD_U_M5.jar"], []
     if (pre and pre_versions) or (not versions and pre_versions):
@@ -165,20 +165,21 @@ def download_version(mc_version, pre):
     output_jar = f"optifine-{optifine_version}-MOD.jar"
     path_output_jar = os.path.join(mc_version,output_jar)
     print(f"Patching OptiFine into {output_jar} in subfolder {mc_version}...")
-    patch_optifine(path_optifine_jar, path_mc_jar, path_output_jar)
+    patch_optifine(java, path_optifine_jar, path_mc_jar, path_output_jar)
     print(f"Patched OptiFine jar saved as {output_jar} in subfolder {mc_version}.")
 
 def main():
     parser = argparse.ArgumentParser(description="OptiFine Downloader and Patcher")
     parser.add_argument("-l", "--list", help="List OptiFine versions for a specific Minecraft version (e.g., 1.16)")
     parser.add_argument("-d", "--download", help="Download and patch a specific OptiFine version (e.g., 1.16.5 or 1.16.5_HD_U_G8)")
+    parser.add_argument("-j", "--java", default="java", help="Provide a custom java path")
     parser.add_argument("-p", "--pre", action='store_true', help="Only use optifine preview versions instead on the normal ones")
     args = parser.parse_args()
 
     if args.list:
         list_versions(args.list)
     elif args.download:
-        download_version(args.download, args.pre)
+        download_version(args.download, args.pre, args.java)
     else:
         parser.print_help()
 

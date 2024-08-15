@@ -33,7 +33,7 @@ To do that check out [add java to enviroment variable under windows](https://con
 If you on linux you problay used the package manager anyway
 
 ## Download
-Then download the patcher file from [here](https://codeberg.org/marvin1099/Automatic-Optifine-Patcher/raw/branch/main/optifine_patcher.py) 
+Then download the patcher file from [here](https://codeberg.org/marvin1099/Automatic-Optifine-Patcher/raw/branch/main/optifine_patcher.py)  
 Place the python file in a empty folder.
 
 ## Use It

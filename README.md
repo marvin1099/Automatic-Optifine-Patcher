@@ -13,7 +13,7 @@ as it gives way better performace and is more compatible with other mods and new
 To use download python from [here](https://www.python.org/downloads/).  
 Or use your package manager (recommend).  
 The package manager on windows, for example is winget.  
-To use the package manager open your store.
+To use the package manager open your store.  
 Or use the cmd / terminal and type somthing like:
 ```
 winget search python3
@@ -25,10 +25,10 @@ winget install python3
 Keep in mind the command is different on linux
 
 Download java as it is needed for the patching itself  
-For that i highly recomend using your package manager
-As it will setup java to be accessible globaly
+For that i highly recomend using your package manager  
+As it will setup java to be accessible globaly  
 If you install java manually like from [here](https://www.openlogic.com/openjdk-downloads)  
-Then you will have to add it to your path enviroment var manually
+Then you will have to add it to your path enviroment var manually  
 To do that check out [add java to enviroment variable under windows](https://confluence.atlassian.com/doc/setting-the-java_home-variable-in-windows-8895.html)  
 If you on linux you problay used the package manager anyway
 
@@ -45,8 +45,8 @@ cd PATH/TO/PYTHON/FILE
 The `PATH/TO/PYTHON/FILE` will need to be replaced,  
 with the folder path of the `optifine_patcher.py`.
 
-To see all versions avalible for `1.9.x`
-Then use one version from the results (for example `1.9.4`)
+To see all versions avalible for `1.9.x`  
+Then use one version from the results (for example `1.9.4`)  
 And type in the cmd / terminal:
 ```
 ./optifine-patcher.py -d 1.9.4
@@ -54,7 +54,7 @@ And type in the cmd / terminal:
 
 Now if this has worked the patched optifine file will be at:  
 `PATH/TO/PYTHON/FILE/$VERSION`  
-and it will be named optifine-$VERSION-MOD.jar  
+and it will be named optifine-$VERSION-MOD.jar   
 $VERSION will be replaced by the version you have downloaded
 
 # Custom Java Path

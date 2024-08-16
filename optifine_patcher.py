@@ -6,6 +6,7 @@ import json
 import argparse
 import subprocess
 import time
+import shutil
 import os
 
 # URLs and paths
@@ -40,19 +41,24 @@ def follow_redirect(url):
 
     return final_url
 
+def patern_search(pattern, data):
+    versions = re.findall(pattern, data)
+    versions.sort(reverse=True)
+    versions = [v[6:-1].replace("http://","https://") for v in versions]
+    return versions
+
+
 def fetch_optifine_versions(mc_version):
     html = fetch_html(OPTIFINE_BASE_URL)
-    pattern = rf'href="http://optifine\.net/adloadx\?f=OptiFine_{re.escape(mc_version)}(?!\d)[^"]*jar"'
-    pattern_pre = rf'href="http://optifine\.net/adloadx\?f=preview_OptiFine_{re.escape(mc_version)}(?!\d)[^"]*jar"'
-    versions = re.findall(pattern, html)
-    versions.sort()
-    versions = [v[6:-1].replace("http://","https://") for v in versions]
+    Svers = patern_search(rf'href="http://optifine\.net/adloadx\?f=OptiFine_{re.escape(mc_version + ".0")}(?!\d)[^"]*jar"', html)
+    Sprev_vers = patern_search(rf'href="http://optifine\.net/adloadx\?f=preview_OptiFine_{re.escape(mc_version  + ".0")}(?!\d)[^"]*jar"', html)
+    Nvers = patern_search(rf'href="http://optifine\.net/adloadx\?f=OptiFine_{re.escape(mc_version)}(?!\d)[^"]*jar"', html)
+    Nprev_vers = patern_search(rf'href="http://optifine\.net/adloadx\?f=preview_OptiFine_{re.escape(mc_version)}(?!\d)[^"]*jar"', html)
 
-    versions_pre = re.findall(pattern_pre, html)
-    versions_pre.sort()
-    versions_pre = [v[6:-1].replace("http://","https://") for v in versions_pre]
+    Fvers = Svers + [item for item in Nvers if item not in Svers]
+    Fprev_vers = Sprev_vers + [item for item in Nprev_vers if item not in Sprev_vers]
 
-    return versions, versions_pre
+    return Fvers, Fprev_vers
 
 def download_file(url, output_path):
     if HEADERS:
@@ -94,8 +100,12 @@ def list_versions(mc_version):
     else:
         print(f"Available OptiFine versions for Minecraft {mc_version}:")
         all_versions = versions + pre_versions
-        for version in all_versions:
-            print(f"- {version}")
+        all_versions.reverse()
+        for link_nr in range(len(all_versions)):
+            main_link, jar_version = all_versions[link_nr].split("_",1)
+            version = jar_version[:-4]
+            print("- " + version)
+
 
 def extract_download_link(html):
     # Regex pattern to find the download link
@@ -129,8 +139,21 @@ def download_version(mc_version, pre, java):
         exit()
     else:
         optifine_jar = op_version_link[nr_vers:]
-        optifine_version = optifine_jar[:-4]
-        mc_version = optifine_jar.split("_")[0]
+        if optifine_jar.endswith(".jar"):
+            optifine_version = optifine_jar.removesuffix(".jar")
+        else:
+            print(f"There was a problem with the download link {op_version_link} from the optifine webpage, is not a jar file")
+            exit()
+        split_op = optifine_version.split("_",1)
+        if len(split_op) > 1:
+            mc_version = split_op[0]
+            op_ending = "_" + split_op[1]
+        elif len(split_op) == 1:
+            mc_version = split_op[0]
+            op_ending = ""
+        else:
+            print(f"There was a problem detecting minecraft version {mc_version} from the optifine webpage for the link {op_version_link}")
+            exit()
 
     time.sleep(2)
     download_page = fetch_html(op_version_link)
@@ -138,7 +161,7 @@ def download_version(mc_version, pre, java):
     #download_link = "https://optifine.net/downloadx?f=OptiFine_1.8.9_HD_U_M5.jar&x=82306fe5063280fee220e41be4cce1d6"
 
     if not download_link:
-        print(f"No download found for {mc_version}")
+        print(f"No download found for {mc_version} on download page {op_version_link}")
         exit()
 
     print(f"Downloading OptiFine {optifine_version}...")
@@ -147,7 +170,7 @@ def download_version(mc_version, pre, java):
 
     os.makedirs(mc_version,exist_ok=True)
 
-    full_optifine_jar = "optifine-" + optifine_jar
+    full_optifine_jar = "optifine-" + mc_version + op_ending + ".jar"
     path_optifine_jar = os.path.join(mc_version,full_optifine_jar)
 
     time.sleep(2)
@@ -157,17 +180,38 @@ def download_version(mc_version, pre, java):
 
     print(f"Fetching Minecraft client jar for {mc_version}...")
     client_url = fetch_minecraft_client(mc_version)
+    nmc_version = None
     if client_url == None:
         client_url = fetch_minecraft_client(mc_version.removesuffix(".0"))
         if client_url == None:
             print(f"Found no minecraft client for version {mc_version}")
             exit()
+        else:
+            nmc_version = mc_version.removesuffix(".0")
+
+    if nmc_version:
+        os.makedirs(nmc_version,exist_ok=True)
+
+        nfull_optifine_jar = "optifine-" + nmc_version + op_ending + ".jar"
+        npath_optifine_jar = os.path.join(nmc_version, nfull_optifine_jar)
+        shutil.move(path_optifine_jar, npath_optifine_jar)
+
+        try:
+            os.rmdir(mc_version)
+        except Exception as e:
+            pass
+
+        full_optifine_jar = nfull_optifine_jar
+        path_optifine_jar = npath_optifine_jar
+        mc_version = nmc_version
+
+
     mc_jar = f"minecraft-{mc_version}-client.jar"
-    path_mc_jar = os.path.join(mc_version,mc_jar)
+    path_mc_jar = os.path.join(mc_version, mc_jar)
     download_file(client_url, path_mc_jar)
     print(f"Minecraft {mc_version} client jar downloaded as {mc_jar} in the subfolder {mc_version}.")
 
-    output_jar = f"optifine-{optifine_version}-MOD.jar"
+    output_jar = f"optifine-{mc_version}{op_ending}-MOD.jar"
     path_output_jar = os.path.join(mc_version,output_jar)
     print(f"Patching OptiFine into {output_jar} in subfolder {mc_version}...")
     patch_optifine(java, path_optifine_jar, path_mc_jar, path_output_jar)
@@ -178,12 +222,18 @@ def main():
     parser.add_argument("-l", "--list", help="List OptiFine versions for a specific Minecraft version (e.g., 1.16)")
     parser.add_argument("-d", "--download", help="Download and patch a specific OptiFine version (e.g., 1.16.5 or 1.16.5_HD_U_G8)")
     parser.add_argument("-j", "--java", default="java", help="Provide a custom java path")
-    parser.add_argument("-p", "--pre", action='store_true', help="Only use optifine preview versions instead on the normal ones")
+    parser.add_argument("-w", "--workdir", help="Provide a custom working directory (the path will be relative to the script if not absolute)")
+    parser.add_argument("-p", "--pre", action='store_true', help="Prioritize optifine preview versions instead on the normal ones")
     args = parser.parse_args()
 
     if args.list:
         list_versions(args.list)
     elif args.download:
+        if args.workdir:
+            if os.path.isabs(args.workdir):
+                os.chdir(args.workdir)
+            else:
+                os.chdir(os.join(os.path.dirname(os.path.realpath(__file__)), args.workdir))
         download_version(args.download, args.pre, args.java)
     else:
         parser.print_help()

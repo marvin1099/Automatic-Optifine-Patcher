@@ -48,8 +48,9 @@ def patern_search(pattern, data):
     return versions
 
 
-def fetch_optifine_versions(mc_version):
-    html = fetch_html(OPTIFINE_BASE_URL)
+def fetch_optifine_versions(mc_version, html=None, nr=0):
+    if not html:
+        html = fetch_html(OPTIFINE_BASE_URL)
     Svers = patern_search(rf'href="http://optifine\.net/adloadx\?f=OptiFine_{re.escape(mc_version + ".0")}(?!\d)[^"]*jar"', html)
     Sprev_vers = patern_search(rf'href="http://optifine\.net/adloadx\?f=preview_OptiFine_{re.escape(mc_version  + ".0")}(?!\d)[^"]*jar"', html)
     Nvers = patern_search(rf'href="http://optifine\.net/adloadx\?f=OptiFine_{re.escape(mc_version)}(?!\d)[^"]*jar"', html)
@@ -57,6 +58,12 @@ def fetch_optifine_versions(mc_version):
 
     Fvers = Svers + [item for item in Nvers if item not in Svers]
     Fprev_vers = Sprev_vers + [item for item in Nprev_vers if item not in Sprev_vers]
+
+    if not Fvers and not Fprev_vers and nr<=0:
+        if mc_version.removesuffix(".0") != mc_version:
+            Fvers, Fprev_vers = fetch_optifine_versions(mc_version.removesuffix(".0")+"_", html, nr+1)
+        elif mc_version.find(".0_") > -1:
+            Fvers, Fprev_vers = fetch_optifine_versions(mc_version.replace(".0_","_",1) , html, nr+1)
 
     return Fvers, Fprev_vers
 
